@@ -34,6 +34,7 @@ const Header = () => {
       ],
     },
     { name: "Events", href: "/events" },
+    { name: "Daily Sessions", href: "/daily-sessions" },
     { name: "Contact", href: "/contact" },
     { name: "Join Us", href: "/join" },
     ]
