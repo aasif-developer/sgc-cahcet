@@ -55,7 +55,7 @@ export const teamMembers: TeamMember[] = [
     department: "Computer Science",
     year: "IV",
     image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1739469250/Kashif_Ul_haq_pgq5mb.jpg",
-    linkedin: "https://www.linkedin.com/in/kashif-ulhaq-a43956278?trk=contact-info",
+    linkedin: "https://www.linkedin.com/in/kashif-ulhaq-k-a43956278/",
   },
   {
     name: "Mudassir S F",
