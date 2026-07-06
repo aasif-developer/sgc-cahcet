@@ -69,7 +69,7 @@ export const announcements = [
   },
 
   {
-    image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783163861/AyazKashif_hlskra.jpg",
+    image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783332114/Ayaz_kashifpic2_asiuwu.jpg",
     heading: "Mohammed Ayaz & Kashif Ulhaq of Our SGC Won First Prize at the Mini Project Expo",
     description:
       "Our SGC members Mohammed Ayaz and Kashif Ulhaq, along with their team, secured First Prize at the Mini Project Expo for their project PRINTMATE. Their innovative solution earned top honors along with a ₹5,000 cash prize, showcasing creativity, technical excellence, and teamwork.",
