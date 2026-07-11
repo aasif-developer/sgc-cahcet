@@ -1,4 +1,4 @@
-import { weeklySessions } from "@/data/weekly_sessions_data";
+import { weeklySessions } from "@/data/week_sessions/weekly_sessions_data";
 import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
