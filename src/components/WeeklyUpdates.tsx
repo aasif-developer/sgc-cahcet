@@ -20,41 +20,54 @@ interface CurrentWeek {
 
 // TODO: Move this into a separate data file once Daily Sessions is finalized.
 const currentWeek: CurrentWeek = {
-  week: "29 June – 3 July 2026",
+  week: "6 July – 10 July 2026",
 
   sessions: [
     {
       id: 1,
-      title: "SGC Sessions 2026–27 Commenced",
-      image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783242170/IMG-20260630-WA0011_eczb2q.jpg",
+      title: "AI Fundamentals: ChatGPT",
+      image:
+        "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783792649/ad02e093-e218-4d66-ad4f-93701c2e6958_n6gkbh.jpg",
       description:
-        "The Student Guidance Cell officially commenced the 2026–27 session with an orientation for new and existing members. Participants were introduced to the year's objectives, planned activities, and the vision of building communication, leadership, and teamwork skills."
+        "The first day of the Generative AI session introduced members to how ChatGPT processes prompts and generates responses. Participants explored tokenization, embeddings, transformers, and next-word prediction to understand the fundamentals behind modern AI systems.",
     },
 
     {
       id: 2,
-      title: "Title: Debate Session – Mornings vs Nights",
-      image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783242296/IMG-20260701-WA0049_izzgf6.jpg",
+      title: "Google AI Studio Workshop",
+      image:
+        "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783792681/a4a0c25d-d2a5-496f-9d7f-31a8a03e13f5_kc3hgg.jpg",
       description:
-        "Members participated in an engaging debate on 'Mornings vs Nights – Which is Better?'. The session encouraged logical reasoning, confident public speaking, and respectful exchange of opinions."
+        "Members participated in a practical workshop using Google AI Studio, where they enhanced their prompt engineering skills and collaborated in teams to build AI-powered solutions for assigned problem statements.",
     },
 
     {
       id: 3,
-      title: "Title: Secret Word Challenge",
-      image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783242442/IMG-20260422-WA0010_lkjxaq.jpg",
+      title: "Speak Beyond Words",
+      image:
+        "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783793020/WhatsApp_Image_2026-07-11_at_11.19.04_PM_u4hnz3.jpg",
       description:
-        "Participants worked in teams to identify a hidden word using only Yes/No questions, promoting teamwork, communication, critical thinking, and strategic questioning."
+        "An engaging JAM (Just A Minute) session focused on improving spontaneous speaking, confidence, clarity of thought, and effective communication under time constraints.",
     },
 
     {
       id: 4,
-      title: "Title: Dialogue vs Action Challenge",
-      image: "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783242619/IMG-20260417-WA0010_rkh9yr.jpg",
+      title: "Money Matters: Financial Freedom",
+      image:
+        "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783793144/WhatsApp_Image_2026-07-11_at_11.19.03_PM_ofru8o.jpg",
       description:
-        "An interactive team activity designed to strengthen communication, coordination, quick decision-making, and teamwork through engaging challenges."
-    }
-  ]
+        "Members learned the fundamentals of personal finance, including saving, investing, the stock market, and the power of compounding to build long-term financial security.",
+    },
+
+    {
+      id: 5,
+      title: "Spy Among Us",
+      image:
+        "https://res.cloudinary.com/dbqjkjl0c/image/upload/v1783792730/c401708e-f63f-4cb7-96ff-4f37c545e40d_zagf3v.jpg",
+      description:
+        "A fun team-based activity where participants identified a hidden spy through discussion, observation, and strategic questioning, promoting teamwork, communication, and critical thinking.",
+    },
+  ],
 };
 
 // FIXED: the side-card offset is now a small constant number of pixels,
@@ -188,10 +201,10 @@ const WeeklyUpdates = () => {
         </div>
 
         <Link
-          href="/daily-sessions/week-1"
+          href="/daily-sessions/week-2"
           onClick={(e) => {
             e.preventDefault();
-            handleNavigate("/daily-sessions/week-1");
+            handleNavigate("/daily-sessions/week-2");
           }}
           className="group flex items-center gap-1 md:gap-2 text-sm md:text-base text-blue-600 dark:text-blue-400 hover:underline whitespace-nowrap"
         >
@@ -313,7 +326,7 @@ const WeeklyUpdates = () => {
                   className="block cursor-pointer"
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleNavigate("/daily-sessions/week-1");
+                    handleNavigate("/daily-sessions/week-2");
                   }}
                 >
                   {cardInner}
