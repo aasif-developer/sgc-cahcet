@@ -64,14 +64,8 @@ const sortedTeamMembers = [...teamMembers].sort((a, b) => {
   const yearPriorityDiff = getYearPriority(a.year) - getYearPriority(b.year)
   if (yearPriorityDiff !== 0) return yearPriorityDiff
 
-  // If same role and year, sort by name
-  if (a.role === "Vice President" && b.role === "Vice President") {
-  if (a.name === "Mohamed Melhan K O") return -1;
-  if (b.name === "Mohamed Melhan K O") return 1;
-}
-
 return a.name.localeCompare(b.name);
-})
+});
 
 export default function Team() {
   return (
