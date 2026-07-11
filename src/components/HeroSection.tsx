@@ -218,6 +218,7 @@ const letterVariants: LetterVariants = {
                     src="/logo.png"
                     alt="SGC Logo"
                     fill
+                    sizes="(max-width: 768px) 192px, 288px"
                     className="object-contain p-2"
                     priority
                   />
