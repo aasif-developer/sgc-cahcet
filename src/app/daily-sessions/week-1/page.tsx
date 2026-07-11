@@ -1,4 +1,4 @@
-import { week1Sessions } from "@/data/week1_sessions_data";
+import { week1Sessions } from "@/data/week_sessions/week1_sessions_data";
 import {
   CalendarDays,
   Clock3,
