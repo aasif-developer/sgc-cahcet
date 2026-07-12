@@ -1,11 +1,17 @@
-import { link } from "fs"
-
 export const announcements = [
   {
-    title: "🚀 SGC Sessions 2026–27 Commencing from 29 June 2026",
+    title: "🎓 Knowledge Transfer (KT) Session Initiative",
     content:
-      "SGC officially begins its 2026–27 activities on 29 June with technical, communication, and career development sessions.",
-    image: "/announcements/session.jpg",
+  "SGC launches the Knowledge Transfer (KT) Session Initiative for hands-on learning in modern technologies.",
+    image: "/announcements/kt_session.jpg",
+    link: "",
+  },
+
+  {
+    title: "📝 Introducing the SGC Session Summary Document",
+    content:
+  "Session Summary Documents will be shared after every SGC session for quick revision and easy learning.",
+    image: "/announcements/session-summary.jpg",
     link: "",
   },
 
@@ -36,7 +42,7 @@ export const announcements = [
   {
     title: "📅 Tentative SGC Academic Plan 2026–27 Released",
     content:
-       "The tentative schedule for workshops, sessions, Revibe 2K26, Hackathon, and other SGC activities has been released.",
+      "The tentative schedule for workshops, sessions, Revibe 2K26, Hackathon, and other SGC activities has been released.",
     image: "/announcements/academic.jpg",
     link: "",
   },
