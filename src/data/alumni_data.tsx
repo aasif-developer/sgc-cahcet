@@ -31,7 +31,7 @@ export const alumni = [
         {
           name: "Harish G",
           department: "EEE",
-          currentPosition: "N/A",
+          currentPosition: "JE. EE at CDC Pvt Ltd",
           contact: "https://www.linkedin.com/in/harish-g-a4b0b8294/"
         },
         {
@@ -49,7 +49,7 @@ export const alumni = [
         {
           name: "Abishek P",
           department: "MECH",
-          currentPosition: "N/A",
+          currentPosition: "Internal auditor at chamundi die casting ",
           contact: "https://www.linkedin.com/in/lovely-gameing-155535258"
         },
         {
