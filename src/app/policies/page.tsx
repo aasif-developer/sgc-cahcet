@@ -204,7 +204,6 @@ export default function CodeOfConduct() {
           as defined herein.
         </p>
       </motion.div>
-
       <motion.div
         variants={containerVariants}
         initial="hidden"

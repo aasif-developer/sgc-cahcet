@@ -43,3 +43,6 @@ next-env.d.ts
 # vscode
 .vscode
 .next
+
+# Ignore Windows desktop configuration file
+desktop.ini

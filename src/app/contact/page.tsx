@@ -76,11 +76,16 @@ export default function Contact() {
               <span>2nd Floor, CAHCET Main Block, CAHCET Campus, Hakeem Nagar, Melvisharam, Ranipet</span>
             </li>
             <li className="flex items-center">
-              <Phone className="mr-2" />
-              <span>
-                <a href="tel:+91 6381273532" className="hover:underline">+91 6381273532</a>
-              </span>
-            </li>
+  <Phone className="mr-2" />
+  <div className="flex flex-col gap-1">
+    <a href="tel:+919943946886" className="hover:underline">
+      +91 99439 46886 — Ayaz (President)
+    </a>
+    <a href="tel:+919585270647" className="hover:underline">
+      +91 95852 70647 — Aasif (Admin)
+    </a>
+  </div>
+</li>
             <li className="flex items-center">
               <Mail className="mr-2" />
               <span>contact@teamsgc.in</span>

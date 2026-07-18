@@ -34,6 +34,7 @@ const Header = () => {
       ],
     },
     { name: "Events", href: "/events" },
+    { name: "Daily Sessions", href: "/daily-sessions" },
     { name: "Contact", href: "/contact" },
     { name: "Join Us", href: "/join" },
     ]
@@ -44,7 +45,7 @@ const Header = () => {
         <Link href="/" className="text-2xl font-bold flex items-center">
           {/* Use a default logo initially, then the theme-specific one after mounting */}
           {mounted ? (
-            <Image src={logoSrc} alt="SGC Logo" width={40} height={40} className="mr-2" />
+            <Image src={logoSrc} alt="SGC Logo" width={40} height={40} className="mr-2" priority />
           ) : (
             <div className="w-10 h-10 mr-2" /> // Placeholder with same dimensions to avoid layout shift
           )}

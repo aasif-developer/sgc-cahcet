@@ -5,7 +5,7 @@ import { ChevronRight, ArrowRight, ArrowLeft, ExternalLink } from "lucide-react"
 import { announcements, achievements } from "../data/data"
 import Image from "next/image"
 import Link from "next/link"
-import BlogSection from "@/components/Blog-post"
+import WeeklyUpdates from "@/components/WeeklyUpdates"
 import HeroSection from "@/components/HeroSection"
 
 interface Achievement {
@@ -27,25 +27,13 @@ const Home: React.FC = () => {
   const [mounted, setMounted] = useState<boolean>(false)
   const [isHovering, setIsHovering] = useState<boolean>(false)
   const [currentAchievementIndex, setCurrentAchievementIndex] = useState<number>(0)
+  const [isMobile, setIsMobile] = useState<boolean>(false)
   const announcementTimerRef = useRef<NodeJS.Timeout | null>(null)
   const achievementTimerRef = useRef<NodeJS.Timeout | null>(null)
   const achievementsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
   setMounted(true)
-
-  // Preload announcement images
-  Promise.all(
-  announcements.map((announcement) => {
-    return new Promise<void>((resolve) => {
-      const img = new window.Image();
-      img.src = announcement.image;
-      img.onload = () => resolve();
-      img.onerror = () => resolve();
-    });
-  })
-);
-
   startAnnouncementTimer()
   startAchievementTimer()
     
@@ -57,6 +45,15 @@ const Home: React.FC = () => {
         clearInterval(achievementTimerRef.current)
       }
     }
+  }, [])
+
+  // NEW: tracks viewport width so the achievements carousel can apply
+  // mobile-only scale/opacity/peek styling without affecting desktop.
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 768)
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
   }, [])
 
   const startAnnouncementTimer = () => {
@@ -87,14 +84,36 @@ const Home: React.FC = () => {
     }, 5000)
   }
 
+  // UPDATED: now centers the actual target card (measured via offsetLeft)
+  // instead of assuming an even edge-to-edge slice of the container. This
+  // is required for the "active card always centered" peek effect to work,
+  // since the container now has left/right padding on mobile.
   const scrollToAchievement = (index: number) => {
     if (achievementsRef.current && window.innerWidth < 768) {
-      const scrollPosition = index * (achievementsRef.current.scrollWidth / achievements.length)
-      achievementsRef.current.scrollTo({
+      const container = achievementsRef.current
+      const card = container.children[index] as HTMLElement | undefined
+      if (!card) return
+      const scrollPosition =
+        card.offsetLeft - container.clientWidth / 2 + card.clientWidth / 2
+      container.scrollTo({
         left: scrollPosition,
         behavior: 'smooth'
       })
     }
+  }
+
+  // NEW: keeps currentAchievementIndex (and therefore the dots + card
+  // scale/opacity) in sync when the user swipes manually instead of using
+  // the arrows or dots.
+  const handleAchievementScroll = () => {
+    if (!achievementsRef.current || window.innerWidth >= 768) return
+    const container = achievementsRef.current
+    const firstCard = container.firstElementChild as HTMLElement | null
+    if (!firstCard) return
+    const cardWidth = firstCard.offsetWidth
+    const gap = 16 // matches space-x-4 (1rem)
+    const index = Math.round(container.scrollLeft / (cardWidth + gap))
+    setCurrentAchievementIndex((prev) => (prev !== index ? index : prev))
   }
 
   const handleAnnouncementNavigation = (direction: 'prev' | 'next') => {
@@ -160,7 +179,6 @@ const Home: React.FC = () => {
       <HeroSection />
 
       {/* Important Announcements Section */}
-
 <section className="p-4 md:p-8 rounded-2xl border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
   <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-6 font-poppins text-black dark:text-white relative inline-block">
     Important Announcements
@@ -177,46 +195,58 @@ const Home: React.FC = () => {
     onMouseEnter={() => setIsHovering(true)}
     onMouseLeave={() => setIsHovering(false)}
   >
-      <motion.div
-  className="relative overflow-hidden rounded-xl border-2 border-black dark:border-gray-600 min-h-[240px] md:min-h-[280px] flex flex-col justify-between"
-  style={{
-    backgroundImage: `url(${announcements[currentAnnouncement].image})`,
-    backgroundSize: "cover",
-    backgroundPosition: "center",
-  }}
->
-        {/* Dark Overlay */}
-        <div className="absolute inset-0 bg-black/75"></div>
-
-        {/* Content */}
+    {/* Fixed-height container — all cards stack inside here */}
+    <div className="relative overflow-hidden rounded-xl border-2 border-black dark:border-gray-600 min-h-[280px] md:min-h-[280px]">
+      {announcements.map((announcement: Announcement, index: number) => (
         <motion.div
-  key={currentAnnouncement}
-  initial={{ opacity: 0, y: 15 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.35 }}
-  className="relative z-10 p-8 md:p-10 h-full flex flex-col max-w-3xl"
->
-          <div>
-            <h3 className="text-white text-xl md:text-2xl font-semibold mb-2 md:mb-3 font-poppins">
-              {announcements[currentAnnouncement].title}
-            </h3>
+          key={index}
+          className="absolute inset-0 flex flex-col justify-between"
+          animate={{
+            opacity: currentAnnouncement === index ? 1 : 0,
+            scale: currentAnnouncement === index ? 1 : 0.98,
+          }}
+          transition={{ duration: 0.45, ease: "easeInOut" }}
+          style={{
+            pointerEvents: currentAnnouncement === index ? "auto" : "none",
+          }}
+        >
+          {/* Background Image */}
+          <Image
+            src={announcement.image}
+            alt={announcement.title}
+            fill
+            priority={index === 0}
+            sizes="100vw"
+            className="absolute inset-0 object-cover"
+          />
 
-            <p className="text-gray-100 text-sm sm:text-base md:text-lg leading-relaxed">
-              {announcements[currentAnnouncement].content}
-            </p>
+          {/* Dark Overlay */}
+          <div className="absolute inset-0 bg-black/75" />
+
+          {/* Content */}
+          <div className="relative z-10 p-8 md:p-10 h-full flex flex-col max-w-3xl">
+            <div>
+              <h3 className="text-white text-xl md:text-2xl font-semibold mb-2 md:mb-3 font-poppins">
+                {announcement.title}
+              </h3>
+              <p className="text-gray-100 text-sm sm:text-base md:text-lg leading-relaxed">
+                {announcement.content}
+              </p>
+            </div>
+
+            {announcement.link && (
+              <Link
+                href={announcement.link}
+                className="inline-flex items-center mt-auto pt-6 text-yellow-300 hover:text-yellow-200 font-semibold text-base md:text-lg transition-colors"
+              >
+                View Committee
+                <ExternalLink className="ml-2 h-4 w-4 md:h-5 md:w-5" />
+              </Link>
+            )}
           </div>
-
-          {announcements[currentAnnouncement].link && (
-            <Link
-              href={announcements[currentAnnouncement].link}
-              className="inline-flex items-center mt-auto pt-6 text-yellow-300 hover:text-yellow-200 font-semibold text-base md:text-lg transition-colors"
-            >
-              View Committee
-              <ExternalLink className="ml-2 h-4 w-4 md:h-5 md:w-5" />
-            </Link>
-          )}
         </motion.div>
-      </motion.div>
+      ))}
+    </div>
 
     {/* Navigation controls */}
     <div className="flex justify-between mt-3 md:mt-4">
@@ -230,7 +260,7 @@ const Home: React.FC = () => {
       </motion.button>
 
       <div className="flex space-x-2">
-        {announcements.map((_, index) => (
+        {announcements.map((_: Announcement, index: number) => (
           <motion.button
             key={index}
             onClick={() => {
@@ -260,97 +290,122 @@ const Home: React.FC = () => {
 </section>
 
       {/* Achievements Section */}
-      <section className="p-4 md:p-8 rounded-2xl border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 font-poppins text-black dark:text-white relative inline-block">
-          Our Achievements
-          <motion.div 
-            className="absolute -bottom-2 left-0 h-2 bg-green-400 rounded-full" 
-            initial={{ width: 0 }}
-            animate={{ width: '100%' }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-          />
-        </h2>
-        
-        {/* Mobile scroll controls */}   
-      <div 
-          ref={achievementsRef}
-          className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-8 flex overflow-x-auto snap-x snap-mandatory scrollbar-hide pb-4 space-x-4 md:space-x-0"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {achievements.map((achievement: Achievement, index: number) => (
-            <motion.div
-              key={achievement.heading}
-              variants={cardVariants}
-              initial="initial"
-              animate="animate"
-              whileHover="hover"
-              custom={index}
-              className="bg-white dark:bg-gray-800 p-4 md:p-6 rounded-xl border-2 border-black dark:border-gray-600 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] dark:shadow-[5px_5px_0px_0px_rgba(255,255,255,0.2)] transform transition-all duration-300 flex-shrink-0 w-80 md:w-auto snap-center"
-            >
-              <div className="relative w-full h-40 md:h-52 mb-3 md:mb-4 overflow-hidden rounded-lg border-2 border-black dark:border-gray-600">
-                <Image
-                  src={achievement.image || "/placeholder.svg"}
-                  alt={achievement.heading}
-                  fill
-                  className="object-cover transition-transform duration-500 hover:scale-110"
-                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                  priority={index < 3}
-                />
-              </div>
-              <h3 className="text-xl md:text-2xl font-semibold mb-2 md:mb-3 font-poppins">{achievement.heading}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-3 md:mb-4 text-sm md:text-base line-clamp-3 md:line-clamp-none">{achievement.description}</p>
-              <Link 
-                href={achievement.link} 
-                className="inline-flex items-center text-blue-600 dark:text-blue-400 font-medium text-sm md:text-base hover:underline"
-              >
-                Learn more <ChevronRight className="ml-1 h-4 w-4 md:h-5 md:w-5" />
-              </Link>
-            </motion.div>
-          ))}
-        </div>
-        <div className="flex md:hidden justify-between mb-4">
-          <motion.button
-            onClick={() => handleAchievementNavigation('prev')}
-            className="bg-black dark:bg-white text-white dark:text-black p-1 rounded-lg border-2 border-black dark:border-white"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </motion.button>
-          
-          <div className="flex space-x-1">
-            {achievements.map((_, index) => (
-              <motion.button
-                key={index}
-                onClick={() => {
-                  setCurrentAchievementIndex(index)
-                  scrollToAchievement(index)
-                  startAchievementTimer()
-                }}
-                className={`h-2 w-2 rounded-full border border-black dark:border-white ${
-                  currentAchievementIndex === index 
-                    ? 'bg-green-500 dark:bg-green-400' 
-                    : 'bg-gray-300 dark:bg-gray-600'
-                }`}
-                whileHover={{ scale: 1.2 }}
-              />
-            ))}
-          </div>
-          
-          <motion.button
-            onClick={() => handleAchievementNavigation('next')}
-            className="bg-black dark:bg-white text-white dark:text-black p-1 rounded-lg border-2 border-black dark:border-white"
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <ArrowRight className="h-5 w-5" />
-          </motion.button>
-        </div>
-      </section>
+<section className="p-4 md:p-8 rounded-2xl border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
+  <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 font-poppins text-black dark:text-white relative inline-block">
+    Our Achievements
+    <motion.div
+      className="absolute -bottom-2 left-0 h-2 bg-green-400 rounded-full"
+      initial={{ width: 0 }}
+      animate={{ width: "100%" }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+    />
+  </h2>
 
-      {/* Blog Section with neo-brutalist styling */}
+  <div
+    ref={achievementsRef}
+    onScroll={handleAchievementScroll}
+    className="md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 lg:gap-8 md:items-stretch flex overflow-x-auto snap-x snap-mandatory scroll-smooth pb-4 gap-4 px-[5%] md:px-0"
+    onMouseEnter={() => setIsHovering(true)}
+    onMouseLeave={() => setIsHovering(false)}
+    style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+  >
+    {achievements.map((achievement: Achievement, index: number) => {
+      const distance = Math.abs(index - currentAchievementIndex)
+      const mobileScale = distance === 0 ? 1 : distance === 1 ? 0.96 : 0.92
+      const mobileOpacity = distance === 0 ? 1 : distance === 1 ? 0.85 : 0.65
+
+      return (
+      <motion.div
+        key={achievement.heading}
+        variants={cardVariants}
+        initial="initial"
+        animate={isMobile ? { scale: mobileScale, opacity: mobileOpacity } : "animate"}
+        whileHover="hover"
+        custom={index}
+        transition={{ type: "spring", stiffness: 260, damping: 26 }}
+        className="bg-white dark:bg-gray-800 p-5 md:p-6 rounded-xl border-2 border-black dark:border-gray-600 shadow-[5px_5px_0px_0px_rgba(0,0,0,1)] dark:shadow-[5px_5px_0px_0px_rgba(255,255,255,0.2)] flex flex-col flex-shrink-0 w-[90%] max-w-[360px] md:w-auto snap-center"
+      >
+        {/* Image */}
+        <div className="relative w-full h-44 md:h-52 mb-4 overflow-hidden rounded-lg border-2 border-black dark:border-gray-600 flex-shrink-0">
+          <Image
+           loading={index < 3 ? "eager" : "lazy"}
+            src={achievement.image || "/placeholder.svg"}
+            alt={achievement.heading}
+            fill
+            className="object-cover transition-transform duration-500 hover:scale-110"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+            priority={index < 3}
+          />
+        </div>
+
+        {/* Text content — grows to fill available space */}
+        <div className="flex flex-col flex-1 min-h-0">
+         <h3 className="text-lg md:text-xl font-semibold mb-2 font-poppins text-black dark:text-white leading-snug line-clamp-4">
+            {achievement.heading}
+          </h3>
+          <p className="text-gray-600 dark:text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4 mb-4">
+            {achievement.description}
+          </p>
+
+          {/* Button pinned to bottom */}
+          {achievement.link && (
+  <Link
+    href={achievement.link}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="mt-auto inline-flex items-center text-blue-600 dark:text-blue-400 font-semibold text-sm md:text-base hover:underline underline-offset-2 group"
+  >
+    Learn more
+    <ChevronRight className="ml-1 h-4 w-4 md:h-5 md:w-5 transition-transform duration-200 group-hover:translate-x-1" />
+  </Link>
+)}
+        </div>
+      </motion.div>
+    )})}
+  </div>
+
+  {/* Mobile navigation controls */}
+  <div className="flex md:hidden justify-between mt-4">
+    <motion.button
+      onClick={() => handleAchievementNavigation("prev")}
+      className="bg-black dark:bg-white text-white dark:text-black p-1 rounded-lg border-2 border-black dark:border-white"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      <ArrowLeft className="h-5 w-5" />
+    </motion.button>
+
+    <div className="flex space-x-1 items-center">
+      {achievements.map((_: Achievement, index: number) => (
+        <motion.button
+          key={index}
+          onClick={() => {
+            setCurrentAchievementIndex(index);
+            scrollToAchievement(index);
+            startAchievementTimer();
+          }}
+          className={`h-2 rounded-full border border-black dark:border-white transition-all duration-300 ease-out ${
+            currentAchievementIndex === index
+              ? "w-6 bg-green-500 dark:bg-green-400"
+              : "w-2 bg-gray-300 dark:bg-gray-600"
+          }`}
+          whileHover={{ scale: 1.2 }}
+        />
+      ))}
+    </div>
+
+    <motion.button
+      onClick={() => handleAchievementNavigation("next")}
+      className="bg-black dark:bg-white text-white dark:text-black p-1 rounded-lg border-2 border-black dark:border-white"
+      whileHover={{ scale: 1.1 }}
+      whileTap={{ scale: 0.9 }}
+    >
+      <ArrowRight className="h-5 w-5" />
+    </motion.button>
+  </div>
+</section>
+
+     {/* Weekly Updates Section */}
       <section className="p-4 md:p-8 rounded-2xl border-4 border-black dark:border-gray-700 bg-white dark:bg-gray-800 shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] dark:shadow-[8px_8px_0px_0px_rgba(255,255,255,0.2)]">
         <h2 className="text-3xl md:text-4xl font-bold mb-4 md:mb-8 font-poppins text-black dark:text-white relative inline-block">
           Latest Updates
@@ -362,7 +417,7 @@ const Home: React.FC = () => {
           />
         </h2>
         <div className="overflow-hidden">
-          <BlogSection />
+          <WeeklyUpdates />
         </div>
       </section>
 
